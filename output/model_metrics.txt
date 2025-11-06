@@ -1,0 +1,39 @@
+
+CLV DEEP LEARNING MODEL - PERFORMANCE REPORT
+============================================================
+
+Model Architecture:
+- Input Features: 18
+- Layers: 4 Dense + Dropout + BatchNorm
+- Neurons: 128 -> 64 -> 32 -> 16 -> 1
+- Activation: ReLU (hidden), Linear (output)
+- Optimizer: Adam (lr=0.001)
+- Loss: MSE
+
+Training Configuration:
+- Total Epochs: 32
+- Batch Size: 32
+- Train-Val Split: 80-20
+- Callbacks: EarlyStopping, ReduceLROnPlateau
+
+Dataset:
+- Training Samples: 1704
+- Test Samples: 427
+- Total Samples: 2131
+
+TRAINING SET METRICS:
+- Mean Absolute Error (MAE): 0.0837
+- Root Mean Squared Error (RMSE): 0.1226
+- R² Score: 0.8198
+
+TEST SET METRICS:
+- Mean Absolute Error (MAE): 0.0822
+- Root Mean Squared Error (RMSE): 0.1068
+- R² Score: 0.8598
+
+Model Interpretation:
+- On average, predictions are off by $0.08 (MAE)
+- R² Score of 0.8598 means model explains 85.98% variance
+- Model is well-tuned
+
+Generated: 2025-11-04 15:11:26
