@@ -33,60 +33,57 @@ st.markdown("""
 # ============================================================================
 # HEADER
 # ============================================================================
-st.markdown("# 💰 Customer Lifetime Value (CLV) Prediction Dashboard")
-st.markdown("---")
+st.markdown("Customer Lifetime Value (CLV) Prediction Dashboard")
 
 # ============================================================================
 # SIDEBAR
 # ============================================================================
 with st.sidebar:
-    st.markdown("## 📊 Navigation")
+    st.markdown("Navigation")
     page = st.radio("Select Page:", 
-                    ["🏠 Home", "📤 Predictions", "📈 Analytics", "ℹ️ About"])
+                    ["Home", "Predictions", "Analytics", "About"])
 
 # ============================================================================
 # PAGE 1: HOME
 # ============================================================================
-if page == "🏠 Home":
+if page == "Home":
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.metric(
-            label="🤖 Model",
+            label="Model",
             value="Random Forest",
             delta="99.99% Accuracy"
         )
     
     with col2:
         st.metric(
-            label="🔗 API Status",
+            label="API Status",
             value="Connected",
             delta="Online"
         )
     
     with col3:
         st.metric(
-            label="⚡ Response Time",
+            label="Response Time",
             value="<100ms",
             delta="Fast"
         )
     
-    st.markdown("---")
-    
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("### 🚀 Features")
+        st.markdown("Features")
         st.markdown("""
-        ✅ Real-time CLV Prediction (via API)
-        ✅ Data Validation (Pydantic)
-        ✅ Feature Engineering
-        ✅ Customer Segmentation
-        ✅ Advanced Analytics
+        Real-time CLV Prediction
+        Data Validation
+        Feature Engineering
+        Customer Segmentation
+        Advanced Analytics
         """)
     
     with col2:
-        st.markdown("### 🏗️ Architecture")
+        st.markdown("Architecture")
         st.markdown("""
         **Frontend:** Streamlit
         **API:** FastAPI + Pydantic
@@ -98,10 +95,10 @@ if page == "🏠 Home":
 # ============================================================================
 # PAGE 2: PREDICTIONS
 # ============================================================================
-elif page == "📤 Predictions":
-    st.markdown("## 🎯 Make Predictions")
+elif page == "Predictions":
+    st.markdown("Make Predictions")
     
-    st.info("ℹ️ Enter customer details below. Data will be validated, engineered, and sent to API for prediction.")
+    st.info("Enter customer details below")
     
     # Check API connection
     try:
@@ -109,13 +106,12 @@ elif page == "📤 Predictions":
         if response.status_code == 200:
             st.success("✅ API Connected")
         else:
-            st.error("❌ API Connection Failed")
+            st.error("API Connection Failed")
     except:
-        st.error("❌ Cannot connect to API. Make sure api.py is running on http://localhost:8000")
+        st.error("Cannot connect to API. Make sure api.py is running on http://localhost:8000")
+
     
-    st.markdown("---")
-    
-    st.markdown("### Enter Customer Details")
+    st.markdown("Enter Customer Details")
     
     col1, col2 = st.columns(2)
     
@@ -132,8 +128,7 @@ elif page == "📤 Predictions":
     frequency_score = st.slider("Frequency Score (1-5)", 1, 5, 3)
     
     # Prediction Button
-    if st.button("🔮 Predict CLV via API", key="predict_btn"):
-        st.markdown("---")
+    if st.button("Predict CLV", key="predict_btn"):
         
         # Prepare data
         customer_data = {
@@ -148,7 +143,7 @@ elif page == "📤 Predictions":
         
         try:
             # Call API
-            with st.spinner("🔄 Sending data to API... Validating → Engineering Features → Predicting..."):
+            with st.spinner("Sending data..."):
                 response = requests.post(
                     f"{API_BASE_URL}/predict",
                     json=customer_data,
@@ -158,7 +153,7 @@ elif page == "📤 Predictions":
             if response.status_code == 200:
                 prediction = response.json()
                 
-                st.markdown("### 📊 Prediction Results")
+                st.markdown("📊 Prediction Results")
                 
                 # Display prediction
                 col1, col2, col3, col4 = st.columns(4)
@@ -194,16 +189,16 @@ elif page == "📤 Predictions":
                 if "High Value" in segment:
                     st.success(f"✨ {segment} - Excellent customer!")
                 elif "Medium-High" in segment:
-                    st.info(f"ℹ️ {segment} - Good potential")
+                    st.info(f"{segment} - Good potential")
                 elif "Medium Value" in segment:
-                    st.warning(f"⚠️ {segment} - Needs attention")
+                    st.warning(f"{segment} - Needs attention")
                 else:
-                    st.error(f"❌ {segment} - High churn risk!")
+                    st.error(f"{segment} - High churn risk!")
                 
                 st.markdown("---")
                 
                 # Recommendations
-                st.markdown("### 💡 Recommendations")
+                st.markdown("Recommendations")
                 if "High Value" in segment:
                     st.markdown("""
                     • **VIP Treatment:** Offer exclusive benefits
@@ -234,19 +229,19 @@ elif page == "📤 Predictions":
                     """)
             
             else:
-                st.error(f"❌ API Error: {response.status_code}")
+                st.error(f"API Error: {response.status_code}")
                 st.write(response.json())
         
         except requests.exceptions.ConnectionError:
-            st.error("❌ Cannot connect to API. Please run: `python api.py`")
+            st.error("Cannot connect to API")
         except Exception as e:
-            st.error(f"❌ Error: {str(e)}")
+            st.error(f"Error: {str(e)}")
 
 # ============================================================================
 # PAGE 3: ANALYTICS
 # ============================================================================
-elif page == "📈 Analytics":
-    st.markdown("## 📊 System Analytics")
+elif page == "Analytics":
+    st.markdown("System Analytics")
     
     try:
         # Get stats from API
@@ -266,12 +261,10 @@ elif page == "📈 Analytics":
             with col4:
                 st.metric("Max CLV", f"${stats['max_clv']:.2f}")
             
-            st.markdown("---")
-            
             col1, col2 = st.columns(2)
             
             with col1:
-                st.markdown("### 💰 CLV Distribution")
+                st.markdown("CLV Distribution")
                 fig, ax = plt.subplots(figsize=(10, 6))
                 clv_range = np.linspace(stats['min_clv'], stats['max_clv'], 50)
                 ax.hist(clv_range, bins=30, color='skyblue', edgecolor='black', alpha=0.7)
@@ -283,7 +276,7 @@ elif page == "📈 Analytics":
                 st.pyplot(fig)
             
             with col2:
-                st.markdown("### 📊 Threshold Information")
+                st.markdown("Threshold Information")
                 st.markdown(f"""
                 **High Value Threshold:** ${stats['high_value_threshold']:.2f}
                 - Top 25% of customers
@@ -299,16 +292,16 @@ elif page == "📈 Analytics":
                 """)
     
     except:
-        st.error("❌ Cannot fetch analytics. Ensure API is running.")
+        st.error("Cannot fetch analytics. Ensure API is running.")
 
 # ============================================================================
 # PAGE 4: ABOUT
 # ============================================================================
-elif page == "ℹ️ About":
+elif page == "About":
     st.markdown("## 📖 About This Project")
     
     st.markdown("""
-    ### 🎯 Project Overview
+    ### Project Overview
     
     **CLV Prediction System** - Predicts customer lifetime value using machine learning.
     
@@ -326,19 +319,6 @@ elif page == "ℹ️ About":
     Results Display
     ```
     
-    ### 🤖 Model Details
-    
-    **Algorithm:** Random Forest Regressor
-    **Accuracy:** 99.99% (R² Score)
-    **Features:** 18 engineered features
-    **Training Data:** 5000+ customers
-    
-    ### 📊 Key Metrics
-    
-    - **R² Score:** 0.9999
-    - **Mean Absolute Error:** < 0.05
-    - **Root Mean Squared Error:** < 0.06
-    
     ### 🛠️ Technologies
     
     - **Frontend:** Streamlit
@@ -346,7 +326,7 @@ elif page == "ℹ️ About":
     - **Machine Learning:** scikit-learn
     - **Data Processing:** Pandas, NumPy
     
-    ### 🚀 How It Works
+    ### How It Works
     
     1. **User enters customer data** via Streamlit frontend
     2. **Data is validated** using Pydantic models
@@ -361,14 +341,11 @@ elif page == "ℹ️ About":
     - Personalized customer campaigns
     - Churn risk identification
     
-    ---
-    
-    *Built with ❤️ using Python, FastAPI, Streamlit, and ML*
     """)
 
 # ============================================================================
 # FOOTER
 # ============================================================================
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: gray;'>© 2024 CLV Prediction Dashboard | FastAPI + Streamlit + ML</p>", 
+st.markdown("<p style='text-align: center; color: gray;'>© 2026 CLV Prediction Dashboard | FastAPI + Streamlit + ML</p>", 
             unsafe_allow_html=True)

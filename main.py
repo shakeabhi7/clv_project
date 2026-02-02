@@ -1,12 +1,10 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
-from typing import List
+from pydantic import BaseModel, Field, field_validator
 import pandas as pd
 import numpy as np
 import pickle
-import io
-import os
+from contextlib import asynccontextmanager
 from datetime import datetime
 from utils import (
     engineer_features,
@@ -16,13 +14,57 @@ from utils import (
     calculate_comparison
 )
 
+
+# =============================================================================
+# GLOBAL OBJECTS
+# =============================================================================
+model = None
+reference_df = None
+
+
+# ============================================================================
+# LOAD MODEL & DATA
+# ============================================================================
+def load_model():
+    try:
+        with open('../Project_CLV/models/clv_best_model.pkl', 'rb') as f:
+            return pickle.load(f)
+    except Exception as e:
+        raise RuntimeError(f"Model loading failed: {e}")
+
+def load_reference_data():
+    try:
+        return pd.read_csv('../Project_CLV/cleaned_data/customer_data_rfm.csv')
+    except Exception as e:
+        raise RuntimeError(f"Reference data loading failed : {e}")
+
+
+# =============================================================================
+# FASTAPI LIFESPAN (STARTUP / SHUTDOWN)
+# =============================================================================
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global model, reference_df
+
+    print("Loading model...")
+    model = load_model()
+    print("Model loaded")
+
+    print("Loading reference data...")
+    reference_df = load_reference_data()
+    print(f"Reference data loaded | rows = {len(reference_df)}")
+
+    yield
+
 # ============================================================================
 # FASTAPI APP SETUP
 # ============================================================================
 app = FastAPI(
     title="CLV Prediction API",
     description="Customer Lifetime Value Prediction API",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
+
 )
 
 # Enable CORS
@@ -34,34 +76,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ============================================================================
-# LOAD MODEL & DATA
-# ============================================================================
-def load_model():
-    try:
-        with open('../clv_project/models/clv_best_model.pkl', 'rb') as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        try:
-            with open('../models/clv_best_model.pkl', 'rb') as f:
-                return pickle.load(f)
-        except:
-            raise Exception("Model not found!")
-
-def load_reference_data():
-    try:
-        return pd.read_csv('../clv_project/cleaned_data/customer_data_rfm.csv')
-    except FileNotFoundError:
-        try:
-            return pd.read_csv('../cleaned_data/customer_data_rfm.csv')
-        except:
-            raise Exception("Reference data not found!")
-
-model = load_model()
-reference_df = load_reference_data()
-
-print("✓ Model loaded successfully")
-print("✓ Reference data loaded successfully")
 
 # ============================================================================
 # PYDANTIC MODELS (DATA VALIDATION)
@@ -77,20 +91,20 @@ class CustomerInput(BaseModel):
     recency: int = Field(..., ge=0, le=400, description="Days since last purchase")
     frequency_score: int = Field(..., ge=1, le=5, description="Frequency score (1-5)")
     
-    @validator('age')
+    @field_validator('age')
     def validate_age(cls, v):
         if v < 18 or v > 100:
             raise ValueError('Age must be between 18 and 100')
         return v
     
-    @validator('purchase_frequency')
+    @field_validator('purchase_frequency')
     def validate_frequency(cls, v):
         if v < 1:
             raise ValueError('Purchase frequency must be at least 1')
         return v
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "age": 35,
                 "purchase_frequency": 20,
@@ -111,7 +125,7 @@ class CLVPredictionResponse(BaseModel):
     confidence_score: float
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "predicted_clv": 8500.50,
                 "customer_segment": "🏆 High Value",
@@ -163,29 +177,13 @@ def health_check():
 
 @app.post("/predict", response_model=CLVPredictionResponse, tags=["Predictions"])
 def predict_clv(customer: CustomerInput):
-    """
-    Predict Customer Lifetime Value for a single customer
-    
-    **Flow:**
-    1. Validate input (Pydantic)
-    2. Engineer features (utils.py)
-    3. Make prediction (model)
-    4. Return results
-    
-    **Input fields:**
-    - age: Customer age (18-100)
-    - purchase_frequency: How often customer purchases (1-50)
-    - avg_order_value: Average value per order ($)
-    - num_orders: Total number of orders
-    - customer_lifetime_days: Days since customer registration
-    - recency: Days since last purchase
-    - frequency_score: Frequency score (1-5)
-    """
+    if model is None or reference_df is None:
+        raise HTTPException(status_code=503,detail="Model not loaded yet")
     try:
         # Step 1: Data is validated by Pydantic automatically
         
         # Step 2: Feature Engineering (utils.py)
-        customer_dict = customer.dict()
+        customer_dict = customer.model_dump()
         engineered_features = engineer_features(customer_dict)
         
         # Step 3: Model Prediction
@@ -224,9 +222,3 @@ def get_stats():
     }
 
 
-# ============================================================================
-# RUN SERVER
-# ============================================================================
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
