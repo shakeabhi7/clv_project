@@ -112,13 +112,13 @@ def segment_customer(clv_value: float, reference_df: pd.DataFrame) -> str:
         Customer segment string with emoji
     """
     if clv_value > reference_df['monetary'].quantile(0.75):
-        return "🏆 High Value"
+        return "High Value"
     elif clv_value > reference_df['monetary'].quantile(0.5):
-        return "⭐ Medium-High Value"
+        return "Medium-High Value"
     elif clv_value > reference_df['monetary'].quantile(0.25):
-        return "📊 Medium Value"
+        return "Medium Value"
     else:
-        return "🎯 At Risk"
+        return "At Risk"
 
 
 def get_confidence_score(clv_value: float, reference_df: pd.DataFrame) -> float:

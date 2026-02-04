@@ -15,16 +15,16 @@ from utils import (
 )
 
 
-# =============================================================================
+
 # GLOBAL OBJECTS
-# =============================================================================
+
 model = None
 reference_df = None
 
 
-# ============================================================================
+
 # LOAD MODEL & DATA
-# ============================================================================
+
 def load_model():
     try:
         with open('../Project_CLV/models/clv_best_model.pkl', 'rb') as f:
@@ -39,9 +39,9 @@ def load_reference_data():
         raise RuntimeError(f"Reference data loading failed : {e}")
 
 
-# =============================================================================
+
 # FASTAPI LIFESPAN (STARTUP / SHUTDOWN)
-# =============================================================================
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global model, reference_df
@@ -56,9 +56,9 @@ async def lifespan(app: FastAPI):
 
     yield
 
-# ============================================================================
+
 # FASTAPI APP SETUP
-# ============================================================================
+
 app = FastAPI(
     title="CLV Prediction API",
     description="Customer Lifetime Value Prediction API",
@@ -77,9 +77,9 @@ app.add_middleware(
 )
 
 
-# ============================================================================
+
 # PYDANTIC MODELS (DATA VALIDATION)
-# ============================================================================
+
 
 class CustomerInput(BaseModel):
     """Single customer CLV prediction input with validation"""
@@ -144,9 +144,9 @@ class HealthResponse(BaseModel):
     timestamp: str
 
 
-# ============================================================================
+
 # API ENDPOINTS
-# ============================================================================
+
 
 @app.get("/", tags=["Info"])
 def read_root():

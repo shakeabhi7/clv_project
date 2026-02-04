@@ -9,9 +9,9 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# ============================================================================
+
 # STREAMLIT CONFIG
-# ============================================================================
+
 st.set_page_config(
     page_title="CLV Prediction Dashboard",
     page_icon="💰",
@@ -30,22 +30,22 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# ============================================================================
+
 # HEADER
-# ============================================================================
+
 st.markdown("Customer Lifetime Value (CLV) Prediction Dashboard")
 
-# ============================================================================
+
 # SIDEBAR
-# ============================================================================
+
 with st.sidebar:
     st.markdown("Navigation")
     page = st.radio("Select Page:", 
                     ["Home", "Predictions", "Analytics", "About"])
 
-# ============================================================================
+
 # PAGE 1: HOME
-# ============================================================================
+
 if page == "Home":
     col1, col2, col3 = st.columns(3)
     
@@ -92,9 +92,9 @@ if page == "Home":
         **Validation:** Data validation before processing
         """)
 
-# ============================================================================
+
 # PAGE 2: PREDICTIONS
-# ============================================================================
+
 elif page == "Predictions":
     st.markdown("Make Predictions")
     
@@ -237,9 +237,9 @@ elif page == "Predictions":
         except Exception as e:
             st.error(f"Error: {str(e)}")
 
-# ============================================================================
+
 # PAGE 3: ANALYTICS
-# ============================================================================
+
 elif page == "Analytics":
     st.markdown("System Analytics")
     
@@ -294,9 +294,9 @@ elif page == "Analytics":
     except:
         st.error("Cannot fetch analytics. Ensure API is running.")
 
-# ============================================================================
+
 # PAGE 4: ABOUT
-# ============================================================================
+
 elif page == "About":
     st.markdown("## 📖 About This Project")
     
@@ -343,9 +343,9 @@ elif page == "About":
     
     """)
 
-# ============================================================================
+
 # FOOTER
-# ============================================================================
+
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: gray;'>© 2026 CLV Prediction Dashboard | FastAPI + Streamlit + ML</p>", 
             unsafe_allow_html=True)

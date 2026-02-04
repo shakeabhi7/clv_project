@@ -11,29 +11,29 @@ Model Architecture:
 - Loss: MSE
 
 Training Configuration:
-- Total Epochs: 32
+- Total Epochs: 50
 - Batch Size: 32
 - Train-Val Split: 80-20
 - Callbacks: EarlyStopping, ReduceLROnPlateau
 
 Dataset:
-- Training Samples: 1704
-- Test Samples: 427
-- Total Samples: 2131
+- Training Samples: 13662
+- Test Samples: 3416
+- Total Samples: 17078
 
 TRAINING SET METRICS:
-- Mean Absolute Error (MAE): 0.0837
-- Root Mean Squared Error (RMSE): 0.1226
-- R² Score: 0.8198
+- Mean Absolute Error (MAE): 0.0130
+- Root Mean Squared Error (RMSE): 0.0185
+- R² Score: 0.9959
 
 TEST SET METRICS:
-- Mean Absolute Error (MAE): 0.0822
-- Root Mean Squared Error (RMSE): 0.1068
-- R² Score: 0.8598
+- Mean Absolute Error (MAE): 0.0130
+- Root Mean Squared Error (RMSE): 0.0182
+- R² Score: 0.9960
 
 Model Interpretation:
-- On average, predictions are off by $0.08 (MAE)
-- R² Score of 0.8598 means model explains 85.98% variance
+- On average, predictions are off by $0.01 (MAE)
+- R² Score of 0.9960 means model explains 99.60% variance
 - Model is well-tuned
 
-Generated: 2025-11-04 15:11:26
+Generated: 2026-02-04 16:53:40

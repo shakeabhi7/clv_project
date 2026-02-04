@@ -13,17 +13,17 @@ PERFORMANCE COMPARISON:
 ======================================================================
 
             Model      MAE     RMSE       R²
-    Random Forest 0.000422 0.000576 0.999996
-Gradient Boosting 0.000508 0.000670 0.999994
-          XGBoost 0.001330 0.001674 0.999966
-    Deep Learning 0.082170 0.106801 0.859813
+    Random Forest 0.000056 0.000073 1.000000
+Gradient Boosting 0.000388 0.000513 0.999997
+          XGBoost 0.001008 0.001183 0.999983
+    Deep Learning 0.012977 0.018190 0.995968
 
 ======================================================================
 BEST MODEL: Random Forest
 ======================================================================
 R² Score:     1.0000 (100.00%)
-MAE:          0.0004
-RMSE:         0.0006
+MAE:          0.0001
+RMSE:         0.0001
 
 Model Type:   Traditional ML
 Status:        Ready for Production
@@ -33,28 +33,28 @@ DETAILED METRICS:
 ======================================================================
 
 DEEP LEARNING:
-R²:   0.8598
-MAE:  0.0822
-RMSE: 0.1068
+R²:   0.9960
+MAE:  0.0130
+RMSE: 0.0182
 
 RANDOM FOREST:
 R²:   1.0000
-MAE:  0.0004
-RMSE: 0.0006
+MAE:  0.0001
+RMSE: 0.0001
 
 GRADIENT BOOSTING:
 R²:   1.0000
-MAE:  0.0005
-RMSE: 0.0007
+MAE:  0.0004
+RMSE: 0.0005
 
 XGBOOST:
 R²:   1.0000
-MAE:  0.0013
-RMSE: 0.0017
+MAE:  0.0010
+RMSE: 0.0012
 
 ======================================================================
 RECOMMENDATION:
 Use Random Forest for production deployment.
 Model achieves 100.00% accuracy on test set.
 
-Generated: 2025-11-04 21:18:48
+Generated: 2026-02-04 16:55:27

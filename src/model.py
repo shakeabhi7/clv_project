@@ -122,7 +122,7 @@ model.compile(
     metrics=['mae','mse']
 )
 
-print("\n📐 Model Architecture:")
+print("\nModel Architecture:")
 model.summary()
 
 #CallBacks
@@ -179,12 +179,12 @@ test_mae = mean_absolute_error(y_test, y_pred_test)
 test_rmse = np.sqrt(mean_squared_error(y_test, y_pred_test))
 test_r2 = r2_score(y_test, y_pred_test)
 
-print(f"\n📊 TRAINING SET METRICS:")
+print(f"\nTRAINING SET METRICS:")
 print(f"   MAE:  {train_mae:.4f}")
 print(f"   RMSE: {train_rmse:.4f}")
 print(f"   R²:   {train_r2:.4f}")
 
-print(f"\n📊 TEST SET METRICS:")
+print(f"\nTEST SET METRICS:")
 print(f"   MAE:  {test_mae:.4f}")
 print(f"   RMSE: {test_rmse:.4f}")
 print(f"   R²:   {test_r2:.4f}")
