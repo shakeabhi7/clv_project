@@ -1,12 +1,14 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 import pandas as pd
-import numpy as np
 import pickle
 from contextlib import asynccontextmanager
 from datetime import datetime
-from utils import (
+from backend.database import PredictionDatabase
+
+db = PredictionDatabase()
+from backend.utils import (
     engineer_features,
     unscale_prediction,
     segment_customer,
@@ -128,7 +130,7 @@ class CLVPredictionResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "predicted_clv": 8500.50,
-                "customer_segment": "🏆 High Value",
+                "customer_segment": "High Value",
                 "comparison_to_average": 11.3,
                 "confidence_score": 0.95
             }
@@ -194,6 +196,16 @@ def predict_clv(customer: CustomerInput):
         segment = segment_customer(actual_clv, reference_df)
         comparison = calculate_comparison(actual_clv, reference_df)
         confidence = get_confidence_score(actual_clv, reference_df)
+        #step 5
+        db.save_prediction(
+            input_data=customer_dict,
+            engineered_features=engineered_features.to_dict(orient='records')[0],
+            scaled_prediction=float(scaled_pred),
+            predicted_clv=float(actual_clv),
+            customer_segment=segment,
+            comparison_to_average=float(comparison),
+            confidence_score=float(confidence)
+        )
         
         return {
             "predicted_clv": round(actual_clv, 2),
@@ -221,4 +233,73 @@ def get_stats():
         "low_value_threshold": round(reference_df['monetary'].quantile(0.25), 2)
     }
 
+@app.get("/database/stats",tags=["Database"])
+def get_database_stats():
+    """Get prediction stats from database"""
+    return db.get_statistics()
 
+@app.get("/database/predictions",tags=["Database"])
+def get_all_predictions(limit:int=100):
+    """Get all predictions from database"""
+    predictions = db.get_all_predictions(limit)
+    return {
+        "total_records":len(predictions),
+        "predictions":predictions
+    }
+
+
+@app.get("/database/segment/{segment}", tags=["Database"])
+def get_predictions_by_segment(segment: str):
+    """Get predictions by customer segment"""
+    predictions = db.get_predictions_by_segment(segment)
+    return {
+        "segment": segment,
+        "total_records": len(predictions),
+        "predictions": predictions
+    }
+
+
+@app.post("/database/export", tags=["Database"])
+def export_predictions(filename: str = "clv_predictions.csv"):
+    """Export all predictions to CSV"""
+    success = db.export_to_csv(filename)
+    return {
+        "success": success,
+        "filename": filename,
+        "message": "Predictions exported successfully" if success else "Export failed"
+    }
+
+
+@app.delete("/database/prediction/{prediction_id}", tags=["Database"])
+def delete_prediction_by_id(prediction_id: str):
+    """
+    Delete a specific prediction by MongoDB ObjectId
+    
+    Args:
+        prediction_id: MongoDB ObjectId (24-character hex string)
+        
+    Returns:
+        Success/failure status
+    """
+    success = db.delete_prediction_by_id(prediction_id)
+    return {
+        "success": success,
+        "prediction_id": prediction_id,
+        "message": f"Prediction {prediction_id} deleted successfully" if success else f"Failed to delete prediction {prediction_id}"
+    }
+
+@app.delete("/database/clear", tags=["Database"])
+def clear_database():
+    """Clear all predictions from database (use with caution!)"""
+    success = db.clear_all_predictions()
+    return {
+        "success": success,
+        "message": "Database cleared" if success else "Clear failed"
+    }
+
+
+
+@app.get("/database/info", tags=["Database"])
+def get_database_info():
+    """Get database file information"""
+    return db.get_database_info()
