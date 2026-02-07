@@ -27,13 +27,13 @@ Enabling data-driven decision-making across customer-facing teams
 
 **Data Flow**
 
-Input Reception: User submits customer data through Streamlit interface
-Validation: FastAPI endpoint validates input against Pydantic schema
-Feature Engineering: Raw features transformed into 18 engineered features
-Inference: Pre-trained machine learning model generates prediction
-Post-Processing: Prediction scaled to actual value, customer segmented
-Persistence: Prediction and all intermediate data stored in MongoDB
-Response: Results returned to frontend for user visualization
+Input Reception: User submits customer data through Streamlit interface.
+Validation: FastAPI endpoint validates input against Pydantic schema.
+Feature Engineering: Raw features transformed into 18 engineered features.
+Inference: Pre-trained machine learning model generates prediction.
+Post-Processing: Prediction scaled to actual value, customer segmented.
+Persistence: Prediction and all intermediate data stored in MongoDB.
+Response: Results returned to frontend for user visualization.
 
 ***Technical Specifications***
 **Dataset Characteristics**
