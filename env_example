@@ -1,0 +1,8 @@
+# Copy to .env and fill in values
+# NEVER commit .env to GitHub
+
+MONGO_URI=mongodb://localhost:27017/
+MODEL_PATH=models/clv_best_model.pkl
+REFERENCE_DATA_PATH=cleaned_data/customer_data_rfm.csv
+API_PORT=8000
+ENV=development
