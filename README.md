@@ -1,172 +1,228 @@
 # Customer Lifetime Value Prediction System
 
-## Overview
+> Full-stack ML system for real-time customer lifetime value prediction and segmentation.
 
-The Customer Lifetime Value (CLV) Prediction System is a comprehensive machine learning solution designed to predict the monetary value a customer will generate throughout their relationship with a business. This system integrates data processing, feature engineering, machine learning inference, and a production-grade API to enable organizations to make data-driven decisions regarding customer acquisition, retention, and resource allocation.
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688?style=flat&logo=fastapi&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat&logo=mongodb&logoColor=white)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-FF6F00?style=flat&logo=tensorflow&logoColor=white)
 
-The system achieves 99.99% prediction accuracy on test data and processes predictions in real-time through a scalable API architecture. It serves as both a learning project for understanding ML pipeline development and a production-ready system deployable in enterprise environments.
+---
 
-## Problem Statement and Business Value
+## Model Results
 
-### The Challenge
+| Model | MAE | RMSE | R² |
+|-------|-----|------|-----|
+| **Random Forest (Best)** ⭐ | **0.0001** | **0.0001** | **1.00** |
+| Gradient Boosting | 0.0004 | 0.0005 | 1.00 |
+| XGBoost | 0.0010 | 0.0012 | 1.00 |
+| Deep Learning (Neural Net) | 0.0130 | 0.0182 | 0.996 |
 
-Most organizations struggle with accurately quantifying customer value due to:
-- Fragmented customer data across multiple systems
-- Inability to predict future customer spending patterns
-- Suboptimal marketing budget allocation based on inaccurate assumptions
-- Reactive rather than proactive customer retention strategies
-- Lack of systematic customer segmentation
+> **Note:** Models trained on synthetic dataset — high R² reflects controlled data distribution.
+> Key metric for business: **11.5% MAE improvement over naive baseline**, processing 50ms per prediction.
 
-### The Solution
+**API Response Time:** ~50ms | **Deployment:** Containerized (Docker)
 
-This system addresses these challenges by:
-- Aggregating customer behavioral and transactional data
-- Engineering meaningful features from raw data
-- Training machine learning models on historical patterns
-- Delivering real-time CLV predictions for individual customers
-- Automatically segmenting customers based on predicted lifetime value
-- Enabling data-driven decision-making across customer-facing teams
+---
 
-### Business Impact
+## Architecture
 
-Organizations implementing this system can expect:
-- 20-30% improvement in marketing ROI through targeted campaigns
-- 15-25% increase in customer retention through proactive interventions
-- 40% reduction in analysis time for customer value assessment
-- Data-driven resource allocation across marketing, sales, and support teams
-- Competitive advantage through predictive customer intelligence
-
-### Data Flow
-
-1. **Input Reception**: User submits customer data through Streamlit interface
-2. **Validation**: FastAPI endpoint validates input against Pydantic schema
-3. **Feature Engineering**: Raw features transformed into 18 engineered features
-4. **Inference**: Pre-trained machine learning model generates prediction
-5. **Post-Processing**: Prediction scaled to actual value, customer segmented
-6. **Persistence**: Prediction and all intermediate data stored in MongoDB
-7. **Response**: Results returned to frontend for user visualization
-
-
-## Technical Specifications
-
-### Dataset Characteristics
-
-- **Total Records**: 5,000+ unique customer profiles
-- **Features (Raw)**: 7 input variables capturing customer behavior
-- **Features (Engineered)**: 18 derived features with domain relevance
-- **Target Variable**: Customer monetary value (CLV)
-- **Data Completeness**: 99.98% after preprocessing
-- **Temporal Range**: 3+ years of transactional history
-
-### Feature Engineering
-
-The system transforms raw customer data into meaningful features through systematic feature engineering:
-
-**Input Features** (7 total):
-- Customer age (numerical)
-- Purchase frequency (count)
-- Average order value (currency)
-- Total number of orders (count)
-- Customer lifetime duration (days)
-- Days since last purchase (recency)
-- Frequency score (ordinal 1-5)
-
-**Engineered Features** (18 total):
-- RFM Metrics: Recency, Frequency, Monetary values and composite scores
-- Behavioral Features: Spending velocity, average days between purchases, purchase patterns
-- Temporal Features: Customer lifetime days, recency in months, frequency per month
-- Aggregated Features: Total spending, average spending per transaction
-
-### Customer Segmentation
-
-Predictions are automatically classified into business-meaningful segments using percentile-based thresholds:
-
-- **High Value Segment** (Top 25%): CLV above 75th percentile - Strategic focus on retention and VIP treatment
-- **Medium-High Value** (50th-75th percentile): Growth segment with upsell opportunities
-- **Medium Value** (25th-50th percentile): Engagement recovery candidates with re-engagement campaigns
-- **At Risk Segment** (Bottom 25%): Churn prevention priority with targeted retention offers
-
-## Technology Stack
-
-### Backend Infrastructure
-- **Web Framework**: FastAPI 0.104.1 - Modern, high-performance Python web framework
-- **Application Server**: Uvicorn - ASGI server for concurrent request handling
-- **Data Validation**: Pydantic 2.4.2 - Type checking and validation at runtime
-- **Database**: MongoDB 5.0+ - NoSQL document database for flexible schema
-
-### Frontend Interface
-- **Web Framework**: Streamlit 1.28.1 - Rapid development of interactive web applications
-- **HTTP Client**: Requests 2.31.0 - HTTP library for API communication
-
-### Data Processing and Analysis
-- **Data Manipulation**: Pandas 2.0.3 - Data frames and tabular operations
-- **Numerical Computing**: NumPy 1.24.3 - Array operations and mathematical functions
-- **Visualization**: Matplotlib 3.8.0, Seaborn 0.13.0 - Statistical and exploratory visualizations
-
-### Machine Learning
-- **Classical ML**: scikit-learn 1.3.0 - Ensemble methods and preprocessing
-- **Deep Learning**: TensorFlow 2.13.0, Keras 2.13.0 - Neural network implementation
-- **Database Driver**: PyMongo 4.5.0 - Python MongoDB driver
-
-## Installation and Deployment
-
-### Prerequisites
-
-- Python 3.8 or higher
-- MongoDB 5.0 or later (local installation or MongoDB Atlas cloud)
-- 2GB minimum RAM, 500MB disk space
-- Git for version control
-
-### Local Installation
-
-1. Clone the repository:
-
-2. Create Python virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+Customer Input (7 features)
+         │
+         ▼
+┌─────────────────┐
+│    FastAPI      │  ← Pydantic validation
+│   /predict      │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐      ┌──────────────┐
+│    Feature      │      │   MongoDB    │
+│  Engineering    │ ───► │  Prediction  │
+│  (18 features)  │      │   Logging    │
+└────────┬────────┘      └──────────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Random Forest  │  ← Best performing model
+│     Model       │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Post-processing │  ← Unscale + Segment + Confidence
+│   + Response    │
+└─────────────────┘
 ```
 
-3. Install Python dependencies:
+---
+
+## Features
+
+- **Real-time CLV Prediction** — REST API with ~50ms response time
+- **18 Engineered Features** — RFM-based: recency_score, spending_velocity, rfm_combined, etc.
+- **4 ML Models Compared** — Random Forest, Gradient Boosting, XGBoost, Deep Learning (Neural Net)
+- **Customer Segmentation** — High Value / Medium-High / Medium / At Risk based on predicted CLV
+- **MongoDB Logging** — Full prediction audit trail with input features + engineered features
+- **Complete CRUD API** — Get, filter by segment, export CSV, delete by ID, clear database
+- **Docker Ready** — Containerized for consistent deployment
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| ML Models | Random Forest, XGBoost, Gradient Boosting, TensorFlow/Keras |
+| API | FastAPI, Pydantic, Uvicorn |
+| Database | MongoDB |
+| Data | Pandas, NumPy, Scikit-learn |
+| Containerization | Docker, Docker Compose |
+
+---
+
+## Quick Start
+
+### Option 1 — Docker (Recommended)
+
 ```bash
+git clone https://github.com/shakeabhi7/clv_project.git
+cd clv-prediction
+
+cp .env.example .env
+# Edit .env with your MongoDB URI if needed
+
+docker-compose up --build
+
+# API available at:  http://localhost:8000
+# API docs at:       http://localhost:8000/docs
+```
+
+### Option 2 — Local Setup
+
+```bash
+git clone https://github.com/shakeabhi7/clv_project.git
+cd clv-prediction
 pip install -r requirements.txt
+
+cp .env.example .env
+
+uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-For MongoDB Atlas (Cloud):
-1. Create account at https://www.mongodb.com/cloud/atlas
-2. Update connection string in database.py:
-```python
-MONGODB_URI = "mongodb+srv://username:password@cluster.mongodb.net/"
-```
+---
 
-### Running the Application
+## API Usage
 
-**Terminal 1 - Start API Server**:
+### Predict CLV
 ```bash
-cd CLV_Project
-python main.py
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "age": 35,
+    "purchase_frequency": 20,
+    "avg_order_value": 150.0,
+    "num_orders": 25,
+    "customer_lifetime_days": 365,
+    "recency": 30,
+    "frequency_score": 4
+  }'
 ```
-- API Server: http://localhost:8000
-- API Documentation: http://localhost:8000/docs
 
-**Terminal 2 - Start Frontend Dashboard**:
-```bash
-cd CLV_Project
-streamlit run app.py
+### Sample Response
+```json
+{
+  "predicted_clv": 8500.50,
+  "customer_segment": "High Value",
+  "comparison_to_average": 11.3,
+  "confidence_score": 0.95
+}
 ```
-- Dashboard: http://localhost:3501
 
+### Other Endpoints
 
-## References and Resources
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /health | API + model status |
+| GET | /stats | Training data statistics |
+| GET | /database/stats | Prediction statistics from MongoDB |
+| GET | /database/predictions | All predictions (paginated) |
+| GET | /database/segment/{segment} | Filter by customer segment |
+| POST | /database/export | Export predictions to CSV |
+| DELETE | /database/prediction/{id} | Delete specific prediction |
 
-- FastAPI Documentation: https://fastapi.tiangolo.com/
-- MongoDB Official Documentation: https://docs.mongodb.com/
-- Streamlit Framework Guide: https://docs.streamlit.io/
-- scikit-learn Machine Learning Library: https://scikit-learn.org/
-- Python Best Practices: https://pep8.org/
+**Interactive docs:** http://localhost:8000/docs
 
+---
 
-**Project Version**: 1.0.0  
-**Last Updated**: January 2026  
-**Status**: Production Ready  
-**Python Version**: 3.10
+## Project Structure
+
+```
+clv_project/
+├── api/
+│   └── main.py                   # FastAPI app + all endpoints
+├── backend/
+│   ├── database.py               # MongoDB — PredictionDatabase class
+│   └── utils.py                  # Feature engineering + post-processing
+├── src/
+│   ├── model.py                  # Model training pipeline
+│   ├── model_comparison.py       # Compare RF, XGB, GBM, Neural Net
+│   └── feature_engineering.py   # Feature creation logic
+├── models/
+│   ├── clv_best_model.pkl        # Best model (Git LFS tracked)
+│   ├── clv_model.h5              # Neural network model
+│   └── model_scaler.pkl          # Feature scaler
+├── data/
+│   └── customers_data.csv        # Raw dataset
+├── notebooks/
+│   ├── eda_visualizations.ipynb  # EDA notebook
+│   └── eda_visualization.py      # EDA script
+├── output/
+│   ├── model_comparison.png      # Model comparison charts
+│   ├── model_metrics.txt         # Training metrics
+│   └── ...                       # Other analysis outputs
+├── dataset_generation.py         # Synthetic data generator
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── .env.example
+└── .gitignore
+```
+
+---
+
+## Engineered Features (18 total)
+
+| Feature | Description |
+|---------|-------------|
+| total_spending | avg_order_value × num_orders |
+| recency_score | 1–5 score based on days since last purchase |
+| monetary_score | Spending normalized score |
+| rfm_combined | recency + frequency + monetary score |
+| spending_velocity | Spending per day of customer lifetime |
+| avg_days_between_purchases | customer_lifetime / num_orders |
+| frequency_per_month | Purchase frequency normalized per month |
+| recency_months | Recency in months |
+| + 10 more derived features | Age, frequency, order value variations |
+
+---
+
+## Environment Variables
+
+```env
+MONGO_URI=mongodb://localhost:27017/
+MODEL_PATH=models/clv_best_model.pkl
+REFERENCE_DATA_PATH=cleaned_data/customer_data_rfm.csv
+API_PORT=8000
+```
+
+---
+
+## Contact
+
+**Abhishek**
+- LinkedIn: [linkedin.com/in/shakeabhi](https://linkedin.com/in/shakeabhi)
+- GitHub: [github.com/shakeabhi7](https://github.com/shakeabhi7)
+- Email: kumarabhishekt7@gmail.com
