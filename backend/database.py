@@ -2,7 +2,6 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 from datetime import datetime, timedelta
 from typing import Dict, List
-import json
 
 
 # MONGODB CONFIGURATION
